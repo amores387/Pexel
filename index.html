@@ -143,6 +143,7 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
         }
         
         .modal.active {
@@ -155,6 +156,7 @@
             border-radius: 10px;
             max-width: 400px;
             text-align: center;
+            margin: auto;
         }
         
         .modal h2 {
@@ -165,6 +167,7 @@
         .modal-buttons {
             display: flex;
             gap: 10px;
+            margin-top: 20px;
         }
         
         .modal-buttons button {
@@ -215,6 +218,77 @@
             font-size: 0.9em;
             display: none;
         }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: #ddd;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .transaction-item {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            text-align: left;
+            font-size: 0.85em;
+        }
+
+        .transaction-item strong {
+            color: #667eea;
+        }
+
+        .transaction-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -246,29 +320,62 @@
     
     <div id="downloadModal" class="modal">
         <div class="modal-content">
-            <h2>Download Image</h2>
-            <img id="modalImage" style="max-width: 100%; margin: 15px 0; border-radius: 8px;">
-            <p style="margin-bottom: 20px;">Pay ₱2 via GCash</p>
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="font-size: 0.9em; color: #333; margin: 5px 0;"><strong>GCash Number:</strong></p>
-                <p style="font-size: 1.1em; font-weight: bold; color: #667eea;">09300820308</p>
-                <p style="font-size: 0.85em; color: #666; margin-top: 10px;">Reference: Image Download</p>
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('payment')">Download</button>
+                <button class="tab-btn" onclick="switchTab('history')">My Downloads</button>
             </div>
-            <div class="modal-error" id="refError"></div>
-            <div style="margin-bottom: 20px;">
-                <p style="font-size: 0.9em; color: #333; margin-bottom: 8px;"><strong>Enter GCash Reference Number:</strong></p>
-                <input 
-                    type="text" 
-                    id="referenceInput" 
-                    placeholder="Enter 13-digit transaction reference"
-                    style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 4px; font-size: 0.95em;"
-                    maxlength="13"
-                >
-                <p style="font-size: 0.75em; color: #999; margin-top: 5px;">Must be exactly 13 digits</p>
+
+            <div id="payment" class="tab-content active">
+                <h2>Download Image</h2>
+                <img id="modalImage" style="max-width: 100%; margin: 15px 0; border-radius: 8px;">
+                <p style="margin-bottom: 20px;">Pay ₱2 via GCash</p>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="font-size: 0.9em; color: #333; margin: 5px 0;"><strong>GCash Number:</strong></p>
+                    <p style="font-size: 1.1em; font-weight: bold; color: #667eea;">09300820308</p>
+                    <p style="font-size: 0.85em; color: #666; margin-top: 10px;">Reference: Image Download</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="userName">Your Full Name:</label>
+                    <input 
+                        type="text" 
+                        id="userName" 
+                        placeholder="Enter your complete name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="userImage">Upload Photo (Optional):</label>
+                    <input 
+                        type="file" 
+                        id="userImage" 
+                        accept="image/*"
+                    >
+                </div>
+
+                <div class="modal-error" id="refError"></div>
+                <div class="form-group">
+                    <label for="referenceInput">GCash Reference Number:</label>
+                    <input 
+                        type="text" 
+                        id="referenceInput" 
+                        placeholder="Enter 13-digit transaction reference"
+                        maxlength="13"
+                    >
+                    <p style="font-size: 0.75em; color: #999; margin-top: 5px;">Must be exactly 13 digits</p>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn-close" onclick="closeModal()">Close</button>
+                    <button class="btn-premium" onclick="downloadPremium()">Download Now</button>
+                </div>
             </div>
-            <div class="modal-buttons">
-                <button class="btn-close" onclick="closeModal()">Close</button>
-                <button class="btn-premium" onclick="downloadPremium()">Download Now</button>
+
+            <div id="history" class="tab-content">
+                <h2>My Downloads</h2>
+                <div id="historyList" style="max-height: 400px; overflow-y: auto; text-align: left;">
+                    <p style="color: #999;">No downloads yet</p>
+                </div>
+                <button class="btn-close" onclick="closeModal()" style="width: 100%; margin-top: 15px;">Close</button>
             </div>
         </div>
     </div>
@@ -281,6 +388,52 @@
         function isValidGCashReference(refNumber) {
             const cleanRef = refNumber.trim().replace(/\D/g, '');
             return cleanRef.length === 13 && /^\d{13}$/.test(cleanRef);
+        }
+
+        function saveDownloadRecord(name, refNumber, imageThumb, uploadedImageData) {
+            const records = JSON.parse(localStorage.getItem('downloads') || '[]');
+            const record = {
+                id: Date.now(),
+                name: name,
+                referenceNumber: refNumber,
+                downloadedImage: imageThumb,
+                uploadedImage: uploadedImageData,
+                date: new Date().toLocaleString(),
+                timestamp: Date.now()
+            };
+            records.unshift(record);
+            localStorage.setItem('downloads', JSON.stringify(records));
+        }
+
+        function loadDownloadHistory() {
+            const records = JSON.parse(localStorage.getItem('downloads') || '[]');
+            const historyList = document.getElementById('historyList');
+            
+            if (records.length === 0) {
+                historyList.innerHTML = '<p style="color: #999;">No downloads yet</p>';
+                return;
+            }
+
+            historyList.innerHTML = records.map(record => `
+                <div class="transaction-item">
+                    <strong>Name:</strong> ${record.name}<br>
+                    <strong>Reference:</strong> ${record.referenceNumber}<br>
+                    <strong>Date:</strong> ${record.date}<br>
+                    ${record.downloadedImage ? `<img src="${record.downloadedImage}" class="transaction-thumb" alt="Downloaded">` : ''}
+                    ${record.uploadedImage ? `<br><strong>Your Photo:</strong><br><img src="${record.uploadedImage}" class="transaction-thumb" alt="Uploaded">` : ''}
+                </div>
+            `).join('');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            document.querySelector(`button[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            if (tab === 'history') {
+                loadDownloadHistory();
+            }
         }
         
         async function searchImages() {
@@ -344,19 +497,32 @@
             document.getElementById('modalImage').src = thumbUrl;
             document.getElementById('downloadModal').classList.add('active');
             document.getElementById('referenceInput').value = '';
+            document.getElementById('userName').value = '';
+            document.getElementById('userImage').value = '';
             document.getElementById('refError').style.display = 'none';
+            switchTab('payment');
         }
         
         function closeModal() {
             document.getElementById('downloadModal').classList.remove('active');
             document.getElementById('referenceInput').value = '';
+            document.getElementById('userName').value = '';
+            document.getElementById('userImage').value = '';
             document.getElementById('refError').style.display = 'none';
         }
         
         function downloadPremium() {
             const refNumber = document.getElementById('referenceInput').value.trim();
+            const userName = document.getElementById('userName').value.trim();
+            const userImageInput = document.getElementById('userImage');
             const refError = document.getElementById('refError');
             
+            if (!userName) {
+                refError.textContent = '⚠️ Please enter your name';
+                refError.style.display = 'block';
+                return;
+            }
+
             if (!refNumber) {
                 refError.textContent = '⚠️ Please enter your GCash reference number';
                 refError.style.display = 'block';
@@ -368,14 +534,32 @@
                 refError.style.display = 'block';
                 return;
             }
-            
+
+            let uploadedImageData = null;
+            if (userImageInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageData = e.target.result;
+                    completeDownload(refNumber, userName, uploadedImageData);
+                };
+                reader.readAsDataURL(userImageInput.files[0]);
+            } else {
+                completeDownload(refNumber, userName, null);
+            }
+        }
+
+        function completeDownload(refNumber, userName, uploadedImageData) {
             const cleanRef = refNumber.trim().replace(/\D/g, '');
+            
             const a = document.createElement('a');
             a.href = currentDownloadUrl;
             a.download = 'image.jpg';
             a.click();
+
+            saveDownloadRecord(userName, cleanRef, currentDownloadUrl, uploadedImageData);
+            
             closeModal();
-            alert('✓ Payment verified (Ref: ' + cleanRef + ')!\nYour image is downloading.');
+            alert('✓ Payment verified (Ref: ' + cleanRef + ')!\nDownload saved for ' + userName + '\nYour image is downloading.');
         }
         
         function showError(message) {
